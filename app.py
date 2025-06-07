@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # Function to generate random lotto numbers
 def generate_lotto_numbers():
-    # 5개의 번호 조합 생성
+    # 5개의 번호 조합 생성aaasdffasdf
     lotto_numbers = generate_lotto_numbers_all_constraints()
     return lotto_numbers
 
@@ -22,14 +22,22 @@ def generate_lotto_numbers_all_constraints():
         if (
                 validate_high_low(numbers) and
                 validate_odd_even(numbers) and
+                validate_sum_constraint(numbers) and
+                validate_end_digit_constraint(numbers) and
                 validate_same_range_constraint(numbers) and
                 validate_consecutive_constraint(numbers) and
                 validate_prime_constraint(numbers) and
                 validate_perfect_squares_constraint(numbers) and
                 validate_composite_constraint(numbers) and
                 validate_end_digit_sum_constraint(numbers) and
+                validate_mirror_numbers_constraint(numbers) and
                 validate_multiple_of_three_constraint(numbers) and
-                validate_multiple_of_four_constraint(numbers)
+                validate_multiple_of_four_constraint(numbers) and
+                validate_multiple_of_five_constraint(numbers) and
+                validate_corner_numbers_constraint(numbers) and
+                validate_color_constraint(numbers) and
+                validate_double_numbers_constraint(numbers) and
+                validate_ac_value_constraint(numbers)
         ):
             results.append(numbers)
 
