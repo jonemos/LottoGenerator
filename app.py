@@ -37,9 +37,6 @@ def generate_lotto_numbers_all_constraints():
         ):
             return [numbers]  # 1조합만 리스트에 담아 반환
 
-
-    return results
-
 # 각 조건에 대한 유효성 검사 함수
 def validate_high_low(numbers):
     low_count = sum(1 for num in numbers if num <= 22)
@@ -158,7 +155,7 @@ def get_latest_draw_no():
         if draw_no_tag:
             draw_no_text = draw_no_tag.get_text()
             # '제1157회'와 같은 형식이라면 숫자만 추출
-            draw_no = int(''.join(filter(str.isdigit, draw_no_text)))
+            draw_no = int(''.join(c for c in draw_no_text if c.isdigit()))
             return draw_no
     return 0
 
@@ -178,9 +175,6 @@ def get_ball_style(num):
 
 @app.route('/')
 def home():
-    lotto_numbers = generate_lotto_numbers_all_constraints()  # Generate numbers with constraints
-    latest_results = fetch_latest_lotto_results()  # Fetch latest lotto results
-
     return render_template(
         'index.html',
         lotto_numbers=generate_lotto_numbers_all_constraints(),
