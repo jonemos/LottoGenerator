@@ -1,126 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotto Number Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 0;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: center;
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #4CAF50;
-        }
-        .lotto-numbers {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-        }
-        .number {
-            font-size: 24px;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background-color: #e0e0e0;
-            color: #333;
-            font-weight: bold;
-        }
-        .results {
-            margin-top: 20px;
-        }
-        .result {
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #f1f1f1;
-            border-radius: 5px;
-        }
-        .results div {
-            margin: 10px 0;
-            font-size: 18px;
-        }
-        .refresh-btn, .generate-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .refresh-btn:hover, .generate-btn:hover {
-            background-color: #45a049;
-        }
-        footer {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #666;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lotto 6/45 추천번호</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
-    <div class="container">
-        <h1>🎉 로또 추천 번호 🎉</h1>
-        <div id="lotto-container">
-            {% for numbers in lotto_numbers %}
-            <div class="lotto-numbers">
-                {% for number in numbers %}
-                <div class="number">{{ number }}</div>
-                {% endfor %}
-            </div>
-            {% endfor %}
-        </div>
-        <button class="generate-btn" onclick="generateNewNumbers()">🔄 새 번호 생성</button>
+  <div class="lotto-container">
+    <div class="lotto-header">
+      <h1>동행복권<br><span>Lotto 6/45</span></h1>
+    </div>
+
+    <div class="lotto-grid">
+      {% for i in range(1, 46) %}
+      <div class="lotto-number">{{ i }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="recommend-section">
+      <p>추천번호</p>
+      <div class="recommend-numbers" id="recommend-numbers">
+        {% for numbers in lotto_numbers %}
+          {% for number in numbers %}
+            <div class="lotto-ball-win">{{ number }}</div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+      <button class="generate-btn" onclick="generateNewNumbers()">
+        🎲 새 번호 생성
+      </button>
+
     </div>
 
     <div class="results">
-        <h2>회차별 당첨번호</h2>
-        {% for result in latest_results %}
-        <div class="result">
-            <strong>회차 {{ result.draw_no }}:</strong>
-            {{ result.numbers | join(', ') }} / Bonus: {{ result.bonus }}
+      <h2>회차별 당첨번호</h2>
+      {% for result in latest_results %}
+      <div class="draw-card">
+        <div class="draw-header">제 {{ result.draw_no }} 회</div>
+        <div class="draw-numbers">
+          {% for num in result.numbers %}
+            <div class="lotto-ball" style="{{ get_ball_style(num) }}">{{ num }}</div>
+          {% endfor %}
+          <span class="plus">+</span>
+          <div class="lotto-ball bonus" style="{{ get_ball_style(result.bonus) }}">{{ result.bonus }}</div>
         </div>
-        {% endfor %}
+      </div>
+      {% endfor %}
     </div>
 
-    <script>
-        function generateNewNumbers() {
-            fetch('/generate-numbers')
-                .then(response => response.json())
-                .then(data => {
-                    const lottoContainer = document.getElementById('lotto-container');
-                    lottoContainer.innerHTML = '';  // 기존 번호 제거
-                    data.lotto_numbers.forEach(numbers => {
-                        const numberDiv = document.createElement('div');
-                        numberDiv.classList.add('lotto-numbers');
-                        numbers.forEach(num => {
-                            const numDiv = document.createElement('div');
-                            numDiv.classList.add('number');
-                            numDiv.textContent = num;
-                            numberDiv.appendChild(numDiv);
-                        });
-                        lottoContainer.appendChild(numberDiv);
-                    });
-                })
-                .catch(error => console.error('Error:', error));
-        }
-    </script>
+  </div>
+
+  <script>
+    function generateNewNumbers() {
+      fetch('/generate-numbers')
+        .then(response => response.json())
+        .then(data => {
+          const recommendBox = document.getElementById('recommend-numbers');
+          recommendBox.innerHTML = '';
+
+          const recommendedSet = new Set(); // 추천번호 저장
+          data.lotto_numbers.forEach(numbers => {
+            numbers.forEach(num => {
+              const ball = document.createElement('div');
+              ball.className = 'lotto-ball-win';
+              ball.textContent = num;
+
+              // 공 색상 적용
+              if (num <= 10) {
+                ball.style.backgroundColor = '#fbc400'; // Yellow
+                ball.style.color = '#000';
+              } else if (num <= 20) {
+                ball.style.backgroundColor = '#69c8f2'; // Blue
+                ball.style.color = '#000';
+              } else if (num <= 30) {
+                ball.style.backgroundColor = '#ff7272'; // Red
+                ball.style.color = '#000';
+              } else if (num <= 40) {
+                ball.style.backgroundColor = '#aaa'; // Gray
+                ball.style.color = '#000';
+              } else {
+                ball.style.backgroundColor = '#b0d840'; // Green
+                ball.style.color = '#000';
+              }
+
+              recommendBox.appendChild(ball);
+              recommendedSet.add(num);
+            });
+          });
+
+          // 버튼 강조 처리
+          const allButtons = document.querySelectorAll('.lotto-number');
+          allButtons.forEach(btn => {
+            const num = parseInt(btn.textContent);
+            if (recommendedSet.has(num)) {
+              btn.style.backgroundColor = '#333';
+              btn.style.color = '#fff';
+              btn.style.fontWeight = 'bold';
+            } else {
+              btn.style.backgroundColor = '#fff';
+              btn.style.color = '#f27171';
+              btn.style.fontWeight = 'normal';
+            }
+          });
+        })
+        .catch(error => console.error('Error:', error));
+    }
+  </script>
 </body>
 </html>

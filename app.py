@@ -7,39 +7,36 @@ app = Flask(__name__)
 
 # Function to generate random lotto numbers
 def generate_lotto_numbers():
-    # 5개의 번호 조합 생성aaasdffasdf
+    # 5개의 번호 조합 생성
     lotto_numbers = generate_lotto_numbers_all_constraints()
     return lotto_numbers
 
 def generate_lotto_numbers_all_constraints():
-    results = []
-
-    while len(results) < 5:  # 5개의 로또 번호 조합 생성
-        # 번호 생성
+    while True:
         numbers = sorted(random.sample(range(1, 46), 6))
 
-        # 모든 조건 확인
         if (
-                validate_high_low(numbers) and
-                validate_odd_even(numbers) and
-                validate_sum_constraint(numbers) and
-                validate_end_digit_constraint(numbers) and
-                validate_same_range_constraint(numbers) and
-                validate_consecutive_constraint(numbers) and
-                validate_prime_constraint(numbers) and
-                validate_perfect_squares_constraint(numbers) and
-                validate_composite_constraint(numbers) and
-                validate_end_digit_sum_constraint(numbers) and
-                validate_mirror_numbers_constraint(numbers) and
-                validate_multiple_of_three_constraint(numbers) and
-                validate_multiple_of_four_constraint(numbers) and
-                validate_multiple_of_five_constraint(numbers) and
-                validate_corner_numbers_constraint(numbers) and
-                validate_color_constraint(numbers) and
-                validate_double_numbers_constraint(numbers) and
-                validate_ac_value_constraint(numbers)
+            validate_high_low(numbers) and
+            validate_odd_even(numbers) and
+            validate_sum_constraint(numbers) and
+            validate_end_digit_constraint(numbers) and
+            validate_same_range_constraint(numbers) and
+            validate_consecutive_constraint(numbers) and
+            validate_prime_constraint(numbers) and
+            validate_perfect_squares_constraint(numbers) and
+            validate_composite_constraint(numbers) and
+            validate_end_digit_sum_constraint(numbers) and
+            validate_mirror_numbers_constraint(numbers) and
+            validate_multiple_of_three_constraint(numbers) and
+            validate_multiple_of_four_constraint(numbers) and
+            validate_multiple_of_five_constraint(numbers) and
+            validate_corner_numbers_constraint(numbers) and
+            validate_color_constraint(numbers) and
+            validate_double_numbers_constraint(numbers) and
+            validate_ac_value_constraint(numbers)
         ):
-            results.append(numbers)
+            return [numbers]  # 1조합만 리스트에 담아 반환
+
 
     return results
 
@@ -165,28 +162,32 @@ def get_latest_draw_no():
             return draw_no
     return 0
 
+def get_ball_style(num):
+    if 1 <= num <= 10:
+        return "background-color:#fbc400;color:#000;"
+    elif 11 <= num <= 20:
+        return "background-color:#69c8f2;color:#000;"
+    elif 21 <= num <= 30:
+        return "background-color:#ff7272;color:#000;"
+    elif 31 <= num <= 40:
+        return "background-color:#aaa;color:#000;"
+    elif 41 <= num <= 45:
+        return "background-color:#b0d840;color:#000;"
+    return ""
+
+
 @app.route('/')
 def home():
     lotto_numbers = generate_lotto_numbers_all_constraints()  # Generate numbers with constraints
     latest_results = fetch_latest_lotto_results()  # Fetch latest lotto results
 
-    # Simulate until match
-    # winning_numbers = fetch_latest_lotto()
-    # attempts = simulate_lotto_until_match(winning_numbers)
-    # last_generated = generate_lotto_numbers_random()
-
-    # num = 0
-    # while num < attempts:
-    #    last_generated = generate_lotto_numbers_random()
-
     return render_template(
         'index.html',
-        lotto_numbers=lotto_numbers,
-        latest_results=latest_results
-        # winning_numbers=winning_numbers,
-        # attempts=attempts,
-        # last_generated=last_generated
+        lotto_numbers=generate_lotto_numbers_all_constraints(),
+        latest_results=fetch_latest_lotto_results(),
+        get_ball_style=get_ball_style
     )
+
 
 #새 번호 생성
 @app.route('/generate-numbers', methods=['GET'])
