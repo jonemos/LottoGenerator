@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify
 import random
 import requests
+import collections
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
@@ -172,14 +173,43 @@ def get_ball_style(num):
         return "background-color:#b0d840;color:#000;"
     return ""
 
+def fetch_last_100_numbers_stats():
+    """최근 100회차 당첨번호에서 전체 번호 출현 순위 포함 반환"""
+    latest_draw_no = get_latest_draw_no()
+    if latest_draw_no == 0:
+        return [], [], []
+    number_counter = collections.Counter()
+    count = 0
+    for draw_no in range(latest_draw_no, latest_draw_no - 100, -1):
+        response = requests.get(f'https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo={draw_no}')
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('returnValue') == 'success':
+                numbers = [
+                    data.get('drwtNo1'), data.get('drwtNo2'), data.get('drwtNo3'),
+                    data.get('drwtNo4'), data.get('drwtNo5'), data.get('drwtNo6')
+                ]
+                number_counter.update(numbers)
+                count += 1
+        if count >= 100:
+            break
+    most_common = number_counter.most_common(10)
+    least_common = sorted(number_counter.items(), key=lambda x: (x[1], x[0]))[:10]
+    # 1~45까지 모두 포함, 출현횟수 0도 표시
+    all_sorted = sorted([(num, number_counter.get(num, 0)) for num in range(1, 46)], key=lambda x: (-x[1], x[0]))
+    return most_common, least_common, all_sorted
 
 @app.route('/')
 def home():
+    most_common, least_common, all_sorted = fetch_last_100_numbers_stats()
     return render_template(
         'index.html',
         lotto_numbers=generate_lotto_numbers_all_constraints(),
         latest_results=fetch_latest_lotto_results(),
-        get_ball_style=get_ball_style
+        get_ball_style=get_ball_style,
+        most_common=most_common,
+        least_common=least_common,
+        all_sorted=all_sorted
     )
 
 
