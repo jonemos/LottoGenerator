@@ -159,3 +159,67 @@ body {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   background: linear-gradient(45deg, #f55454, #f27171);
 }
+
+.stats-section {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 40px 0 20px 0;
+    flex-wrap: wrap;
+}
+.stats-box {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 24px 32px;
+    min-width: 320px;
+    text-align: center;
+}
+.stats-box h3 {
+    font-size: 1.15rem;
+    margin-bottom: 18px;
+    color: #333;
+    letter-spacing: -1px;
+}
+.number-balls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+.ball {
+    display: inline-block;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 38px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    margin: 2px;
+    transition: transform 0.15s;
+}
+.ball-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+    height: 48px;
+    width: 48px;
+    padding: 2px 0;
+}
+.ball-num {
+    font-size: 1.1rem;
+    font-weight: bold;
+    z-index: 1;
+}
+.ball-count {
+    display: block;
+    font-size: 0.8rem;
+    color: #555;
+    font-weight: normal;
+    margin-top: 0px;
+    z-index: 1;
+}
