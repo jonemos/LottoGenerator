@@ -48,21 +48,6 @@
       </div>
       {% endfor %}
     </div>
-
-    <!-- index.html 하단에 추가 -->
-    <div class="stats-section">
-        <div class="stats-box" style="width:100%;">
-            <h3>최근 100회차<br>전체 번호 출현 순위 (많이 나온 순)</h3>
-            <div class="number-balls" style="flex-wrap:wrap; justify-content:flex-start;">
-                {% for num, count in all_sorted %}
-                    <span class="ball ball-vertical" style="{{ get_ball_style(num) }}">
-                        <span class="ball-num">{{ num }}</span>
-                        <span class="ball-count">{{ count }}회</span>
-                    </span>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
   </div>
 
   <script>
