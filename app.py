@@ -3,6 +3,12 @@ import random
 import requests
 import collections
 from bs4 import BeautifulSoup
+import time
+
+# 전역 캐시 변수
+last_stats = None
+last_stats_time = 0
+CACHE_DURATION = 60 * 60  # 1시간
 
 app = Flask(__name__)
 
@@ -174,6 +180,10 @@ def get_ball_style(num):
     return ""
 
 def fetch_last_100_numbers_stats():
+    global last_stats, last_stats_time
+    now = time.time()
+    if last_stats and now - last_stats_time < CACHE_DURATION:
+        return last_stats
     """최근 100회차 당첨번호에서 전체 번호 출현 순위 포함 반환"""
     latest_draw_no = get_latest_draw_no()
     if latest_draw_no == 0:
@@ -197,6 +207,8 @@ def fetch_last_100_numbers_stats():
     least_common = sorted(number_counter.items(), key=lambda x: (x[1], x[0]))[:10]
     # 1~45까지 모두 포함, 출현횟수 0도 표시
     all_sorted = sorted([(num, number_counter.get(num, 0)) for num in range(1, 46)], key=lambda x: (-x[1], x[0]))
+    last_stats = (most_common, least_common, all_sorted)
+    last_stats_time = now
     return most_common, least_common, all_sorted
 
 @app.route('/')
