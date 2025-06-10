@@ -2,8 +2,10 @@ from flask import Flask, render_template, jsonify
 import random
 import requests
 from bs4 import BeautifulSoup
+from lotto_history import update_lotto_history, load_lotto_history
 
 app = Flask(__name__)
+update_lotto_history()
 
 # Function to generate random lotto numbers
 def generate_lotto_numbers():
@@ -189,5 +191,12 @@ def generate_numbers():
     lotto_numbers = generate_lotto_numbers_all_constraints()
     return jsonify({'lotto_numbers': lotto_numbers})
 
+
+# Lotto history endpoint
+@app.route('/lotto-history', methods=['GET'])
+def lotto_history():
+    return jsonify({'results': load_lotto_history()})
+
 if __name__ == '__main__':
     app.run(debug=True)
+
