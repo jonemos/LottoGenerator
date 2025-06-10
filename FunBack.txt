@@ -12,7 +12,7 @@ def generate_lotto_numbers():
         (4, 2),  # 4 저비율, 2 고비율
         (5, 1)  # 5 저비율, 1 고비율
     ]
-
+111
     # 랜덤으로 패턴 선택
     pattern = random.choice(patterns)
     low_count, high_count = pattern

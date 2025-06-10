@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 # Function to generate random lotto numbers
 def generate_lotto_numbers():
-    # 5개의 번호 조합 생성 11
+    # 5개의 번호 조합 생성 1122
     lotto_numbers = generate_lotto_numbers_all_constraints()
     return lotto_numbers
 
