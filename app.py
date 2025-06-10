@@ -230,13 +230,32 @@ def refresh_top_numbers_if_sunday():
         print("[일요일] 출현 빈도 갱신 중...")
         update_top_frequent_numbers_file()
 
+def load_top_20_numbers():
+    import json
+    if not os.path.exists(TOP_NUMBERS_FILE):
+        return []
+
+    with open(TOP_NUMBERS_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        top_20 = [item[0] for item in data.get('top_numbers', [])[:20]]
+        return top_20
+    
+@app.route('/generate-from-top20', methods=['GET'])
+def generate_from_top20():
+    top_20 = load_top_20_numbers()
+    if len(top_20) < 6:
+        return jsonify({'numbers': []})
+    numbers = sorted(random.sample(top_20, 6))
+    return jsonify({'numbers': numbers})
+        
 @app.route('/')
 def home():
     return render_template(
         'index.html',
         lotto_numbers=generate_lotto_numbers_all_constraints(),
         latest_results=fetch_latest_lotto_results(),
-        get_ball_style=get_ball_style
+        get_ball_style=get_ball_style,
+        top_20_recommend=sorted(random.sample(load_top_20_numbers(), 6))
     )
 
 

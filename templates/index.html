@@ -55,8 +55,20 @@
       <div class="draw-numbers" id="top-frequent-numbers">
         <!-- JS가 채움 -->
       </div>
+
+      <h2>출현 상위 20개 중 추천번호</h2>
+      <div class="recommend-numbers" id="top20-recommend">
+        {% for number in top_20_recommend %}
+          <div class="lotto-ball-win" style="{{ get_ball_style(number) }}">{{ number }}</div>
+        {% endfor %}
+      </div>
+      <div style="display: flex; justify-content: center; margin-top: 10px;">
+        <button class="generate-btn" onclick="refreshTop20Recommend()">🎲 다시 추천</button>
+      </div>
+      <p id="ac-value-display" style="text-align:center; font-size:14px; color:#555; margin-top:10px;"></p>
     </div>
 
+    
   </div>
 
   <script>
@@ -161,8 +173,38 @@
         })
         .catch(err => console.error('출현 빈도 불러오기 실패', err));
     }
+    function refreshTop20Recommend() {
+      fetch('/generate-from-top20')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('top20-recommend');
+          const acValueDisplay = document.getElementById('ac-value-display');
+          container.innerHTML = '';
+          let differences = new Set();
 
-    window.onload = function () {
+          data.numbers.forEach((num, i) => {
+            const ball = document.createElement('div');
+            ball.className = 'lotto-ball-win';
+            ball.textContent = num;
+
+            if (num <= 10) ball.style.backgroundColor = '#fbc400';
+            else if (num <= 20) ball.style.backgroundColor = '#69c8f2';
+            else if (num <= 30) ball.style.backgroundColor = '#ff7272';
+            else if (num <= 40) ball.style.backgroundColor = '#aaa';
+            else ball.style.backgroundColor = '#b0d840';
+            ball.style.color = '#000';
+            container.appendChild(ball);
+
+            for (let j = 0; j < i; j++) {
+              differences.add(Math.abs(data.numbers[j] - num));
+            }
+          });
+          acValueDisplay.textContent = `AC값: ${differences.size}`;
+        })
+        .catch(err => console.error('Top 20 추천번호 새로고침 실패', err));
+    }
+   
+      window.onload = function () {
       generateNewNumbers(); // 기존 추천번호도 새로 불러옴
       loadTopFrequentNumbers(); // 추가된 기능 실행
     }
