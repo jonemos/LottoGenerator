@@ -1,9 +1,16 @@
 from flask import Flask, render_template, jsonify
 import random
+import time
+import json
+import os
+import datetime
 import requests
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
+
+TOP_NUMBERS_FILE = 'top_numbers.json'
+
 
 # Function to generate random lotto numbers
 def generate_lotto_numbers():
@@ -172,6 +179,56 @@ def get_ball_style(num):
         return "background-color:#b0d840;color:#000;"
     return ""
 
+def update_top_frequent_numbers_file():
+    latest_draw_no = get_latest_draw_no()
+    if latest_draw_no == 0:
+        return
+
+    frequency = {}
+    for draw_no in range(latest_draw_no, latest_draw_no - 100, -1):
+        try:
+            response = requests.get(
+                f'https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo={draw_no}',
+                timeout=3
+            )
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('returnValue') == 'success':
+                    numbers = [
+                        data.get('drwtNo1'), data.get('drwtNo2'), data.get('drwtNo3'),
+                        data.get('drwtNo4'), data.get('drwtNo5'), data.get('drwtNo6')
+                    ]
+                    for num in numbers:
+                        frequency[num] = frequency.get(num, 0) + 1
+            time.sleep(0.1)
+        except Exception as e:
+            print(f'Error fetching draw {draw_no}: {e}')
+            time.sleep(0.5)
+
+    sorted_numbers = sorted(frequency.items(), key=lambda x: (-x[1], x[0]))
+
+    with open(TOP_NUMBERS_FILE, 'w', encoding='utf-8') as f:
+        json.dump({
+            'updated': datetime.datetime.now().isoformat(),
+            'top_numbers': sorted_numbers
+        }, f, ensure_ascii=False, indent=2)
+
+@app.route('/top-frequent-numbers', methods=['GET'])
+def top_frequent_numbers():
+    if not os.path.exists(TOP_NUMBERS_FILE):
+        update_top_frequent_numbers_file()
+
+    with open(TOP_NUMBERS_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    # 응답 구조 예: {'updated': '2025-06-08T19:30:00', 'top_numbers': [[1, 12], [23, 10], ...]}
+    return jsonify(data)
+
+def refresh_top_numbers_if_sunday():
+    today = datetime.datetime.today()
+    if today.weekday() == 6:  # 일요일 = 6
+        print("[일요일] 출현 빈도 갱신 중...")
+        update_top_frequent_numbers_file()
 
 @app.route('/')
 def home():
@@ -190,4 +247,9 @@ def generate_numbers():
     return jsonify({'lotto_numbers': lotto_numbers})
 
 if __name__ == '__main__':
+    # 일요일일 경우 캐시 파일 갱신
+    import datetime
+    if datetime.datetime.today().weekday() == 6:
+        update_top_frequent_numbers_file()
+
     app.run(debug=True)
