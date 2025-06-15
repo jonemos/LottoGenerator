@@ -237,7 +237,7 @@ def load_top_20_numbers():
 
     with open(TOP_NUMBERS_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
-        top_20 = [item[0] for item in data.get('top_numbers', [])[:20]]
+        top_20 = [item[0] for item in data.get('top_numbers', [])[:30]]
         return top_20
     
 @app.route('/generate-from-top20', methods=['GET'])
